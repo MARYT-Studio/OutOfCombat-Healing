@@ -1,20 +1,83 @@
-## TemplateDevEnv
+## Out of Combat
 
-Template workspace for modding Minecraft 1.12.2. Licensed under MIT, it is made for public use.
+![](https://i.imgur.com/ffUX75U.png)
 
-This template currently utilizies **Gradle 8.7** + **[RetroFuturaGradle](https://github.com/GTNewHorizons/RetroFuturaGradle) 1.3.35** + **Forge 14.23.5.2847**.
+## Overview
 
-With **coremod and mixin support** that is easy to configure.
+Out of Combat mod.
 
-### Instructions:
+As what its name represents, it brings a simple but easily configurable Out-of-Combat mechanic into Minecraft. 
 
-1. Click `use this template` at the top.
-2. Clone the repository you have created with this template.
-3. In the local repository, run the command `gradlew setupDecompWorkspace`
-4. Open the project folder in IDEA.
-5. Right-click in IDEA `build.gradle` of your project, and select `Link Gradle Project`, after completion, hit `Refresh All` in the gradle tab on the right.
-6. Run `gradlew runClient` and `gradlew runServer`, or use the auto-imported run configurations in IntelliJ like `1. Run Client`.
+Simple means its logic and mechanic are both simple:
 
-### Mixins:
+(`T1, T2, T3` are independent variables, representing number of Minecraft game ticks)
 
-- When writing Mixins on IntelliJ, it is advisable to use latest [MinecraftDev Fork for RetroFuturaGradle](https://github.com/eigenraven/MinecraftDev/releases).
+1. Detect if player has not attacked for a given time `T1` / been damaged for a given time `T2`.
+2. If player has neither attacked for `T1` nor been damaged for `T2`, start to count the out-of-combat time.
+
+   If player attacks / is damaged, clear the corresponding timer and the out-of-combat timer.
+3. If out-of-combat time exceeded `T3`, player is out of combat.
+
+3 NBT tags updated by events serve as timers, to fulfill the logic above. 
+
+Besides, an additional countdown timer will pause the ticking of the out-of-combat timer, but not clear it.
+It can be used in other combat mechanics.
+
+For example, assuming player can get "Invulnerable"-like abilities in your modpack.
+when those abilities are activated, they may still in combat, but will not be damaged.
+If you would like to do so, you may let this countdown timer countdown for the time equals to the abilities' durations. 
+So that the out-of-combat timer will wait for the abilities to deactivate, and continues after that.
+
+## Documents for Usage
+
+### Config File
+
+```
+debug {
+    # Enable this for debugging purpose
+    B:Debug=true
+}
+
+general {
+    # Out-of-combat timer only counts after Not-being-attacked timer counts more than this value.
+    I:noAttackedTimeThreshold=214738467
+
+    # Out-of-combat timer only counts after No-attacking timer counts more than this value.
+    D:noAttackingTimeThreshold=214738467
+
+    # When Out-of-combat timer counts exceeds this value, the player is considered out of combat.
+    I:outOfCombatTimeThreshold=214738467
+}
+```
+
+It is well documented in its comments.
+
+Default values are large, means this mod are not effective until you modify this config file.
+
+### NBT Names and Structure
+
+These 4 NBT tags are saved in player's persisted data: `ForgeData/PlayerPersisted`, with the structure below.
+
+```
+ForgeData: {
+    PlayerPersisted: {
+        out_of_combat: {
+            noAttackingTime: 0L         // No Attacking Timer
+            noAttackedTime: 0L          // Not Being Damaged Timer
+            stopOutOfCombatTimer: 0L    // Countdown. Before This is count to 0, Out-of-Combat timer will not tick.
+            outOfCombatTime: 0L         // Out of Combat Timer
+        }
+    }
+}
+```
+
+That means, you can easily manipulate the value of each of them
+with your mods or CraftTweaker/KubeJS scripts or any other scripts like them.
+
+**No need for complex APIs or special integrations/compatibilities.**
+
+___________
+
+## Future Plans
+
+Support other Minecraft versions.

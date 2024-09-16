@@ -29,6 +29,8 @@ public class OutOfCombat {
         Configuration config = new Configuration(new File(Loader.instance().getConfigDir(), Tags.MOD_ID + ".cfg"));
         try {
             config.load();
+            // Here should be Long.MAX_VALUE, but it will be read in a double form "9.xxE18" and throw an exception.
+            // Int.MAX will also make this mod have no effect as default. Use it till a better way is found.
             {
                 Property property = config.get(Configuration.CATEGORY_GENERAL, "noAttackingTimeThreshold", Integer.MAX_VALUE);
                 property.setComment("Out-of-combat timer only counts after No-attacking timer counts more than this value.");

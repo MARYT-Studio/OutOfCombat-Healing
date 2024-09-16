@@ -56,49 +56,51 @@ public class OutOfCombatHandler {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.side.isServer() && event.phase == TickEvent.Phase.END) {
-            NBTTagCompound outOfCombatData = getOutOfCombatData(event.player);
+        if (event.phase == TickEvent.Phase.END) {
+            if (event.side.isServer()) {
+                NBTTagCompound outOfCombatData = getOutOfCombatData(event.player);
 
-            long newNoAttackingTime = outOfCombatData.getLong("noAttackingTime") + 1;
-            long newNoAttackedTime = outOfCombatData.getLong("noAttackedTime") + 1;
+                long newNoAttackingTime = outOfCombatData.getLong("noAttackingTime") + 1;
+                long newNoAttackedTime = outOfCombatData.getLong("noAttackedTime") + 1;
 
-            outOfCombatData.setLong("noAttackingTime", newNoAttackingTime);
-            outOfCombatData.setLong("noAttackedTime", newNoAttackedTime);
+                outOfCombatData.setLong("noAttackingTime", newNoAttackingTime);
+                outOfCombatData.setLong("noAttackedTime", newNoAttackedTime);
 
-            // Stop Out-of-combat Timer.
-            // If this timer has not been initialized, it will be initialized with a 0 value.
-            // If this timer has got a zero value, this line effectively do nothing.
-            // If this timer has a nonzero value, it will function as a countdown timer.
-//            outOfCombatData.setLong("stopOutOfCombatTimer", Long.max(0L, outOfCombatData.getLong("stopOutOfCombatTimer") - 1L));
-            if (DEBUG) LOGGER.debug("stopOutOfCombatTimer: {}, It should be set to: {}",
-                    outOfCombatData.getLong("stopOutOfCombatTimer"),
-                    Long.max(0L, outOfCombatData.getLong("stopOutOfCombatTimer") - 1L));
+                // Stop Out-of-combat Timer.
+                // If this timer has not been initialized, it will be initialized with a 0 value.
+                // If this timer has got a zero value, this line effectively do nothing.
+                // If this timer has a nonzero value, it will function as a countdown timer.
+                outOfCombatData.setLong("stopOutOfCombatTimer", Long.max(0L, outOfCombatData.getLong("stopOutOfCombatTimer") - 1L));
+                if (DEBUG) LOGGER.debug("stopOutOfCombatTimer: {}, It should be set to: {}",
+                        outOfCombatData.getLong("stopOutOfCombatTimer"),
+                        Long.max(0L, outOfCombatData.getLong("stopOutOfCombatTimer") - 1L));
 
-            if (outOfCombatData.getLong("noAttackingTime") >= noAttackingTimeThreshold &&
-                    outOfCombatData.getLong("noAttackedTime") >= noAttackedTimeThreshold &&
-                    outOfCombatData.getLong("stopOutOfCombatTimer") <= 0L
-            ) {
-                long newOutOfCombatTime = outOfCombatData.getLong("outOfCombatTime") + 1L;
-                outOfCombatData.setLong("outOfCombatTime", newOutOfCombatTime);
-                if (DEBUG && outOfCombatData.getLong("outOfCombatTime") >= outOfCombatTimeThreshold)
-                    LOGGER.info("Player is out of combat for {} ticks.",
-                            outOfCombatData.getLong("outOfCombatTime") - outOfCombatTimeThreshold);
-            } else {
-                if (DEBUG) {
-                    LOGGER.debug("Out-of-combat timer's ticking is stopped due to: noAttackingTime = {}, noAttackedTime = {}, stopOutOfCombatTimer = {}.",
-                        outOfCombatData.getLong("noAttackingTime"),
-                        outOfCombatData.getLong("noAttackedTime"),
-                        outOfCombatData.getLong("stopOutOfCombatTimer")
-                    );
+                if (outOfCombatData.getLong("noAttackingTime") >= noAttackingTimeThreshold &&
+                        outOfCombatData.getLong("noAttackedTime") >= noAttackedTimeThreshold &&
+                        outOfCombatData.getLong("stopOutOfCombatTimer") <= 0L
+                ) {
+                    long newOutOfCombatTime = outOfCombatData.getLong("outOfCombatTime") + 1L;
+                    outOfCombatData.setLong("outOfCombatTime", newOutOfCombatTime);
+                    if (DEBUG && outOfCombatData.getLong("outOfCombatTime") >= outOfCombatTimeThreshold)
+                        LOGGER.info("Player is out of combat for {} ticks.",
+                                outOfCombatData.getLong("outOfCombatTime") - outOfCombatTimeThreshold);
+                } else {
+                    if (DEBUG) {
+                        LOGGER.debug("Out-of-combat timer's ticking is stopped due to: noAttackingTime = {}, noAttackedTime = {}, stopOutOfCombatTimer = {}.",
+                                outOfCombatData.getLong("noAttackingTime"),
+                                outOfCombatData.getLong("noAttackedTime"),
+                                outOfCombatData.getLong("stopOutOfCombatTimer")
+                        );
+                    }
                 }
-            }
 
-            // Debug info here
-            if (DEBUG) LOGGER.debug("noAttackingTime: {}/{}, noAttackedTime: {}/{}, outOfCombatTime: {}/{} (Current/Threshold).",
-                    outOfCombatData.getLong("noAttackingTime"), noAttackingTimeThreshold,
-                    outOfCombatData.getLong("noAttackedTime"), noAttackedTimeThreshold,
-                    outOfCombatData.getLong("outOfCombatTime"), outOfCombatTimeThreshold
-            );
+                // Debug info here
+                if (DEBUG) LOGGER.debug("noAttackingTime: {}/{}, noAttackedTime: {}/{}, outOfCombatTime: {}/{} (Current/Threshold).",
+                        outOfCombatData.getLong("noAttackingTime"), noAttackingTimeThreshold,
+                        outOfCombatData.getLong("noAttackedTime"), noAttackedTimeThreshold,
+                        outOfCombatData.getLong("outOfCombatTime"), outOfCombatTimeThreshold
+                );
+            }
         }
     }
 }
