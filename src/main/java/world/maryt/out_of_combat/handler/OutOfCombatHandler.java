@@ -16,10 +16,11 @@ import static world.maryt.out_of_combat.OutOfCombat.LOGGER;
 public class OutOfCombatHandler {
     private static CompoundTag getOutOfCombatData(Player player) {
         CompoundTag forgeData = player.getPersistentData();
-        if (!(forgeData.contains(Player.PERSISTED_NBT_TAG))) {
-            forgeData.put(Player.PERSISTED_NBT_TAG, new CompoundTag());
+
+        if (!(forgeData.contains("PlayerPersisted"))) {
+            forgeData.put("PlayerPersisted", new CompoundTag());
         }
-        CompoundTag persistedData = forgeData.getCompound(Player.PERSISTED_NBT_TAG);
+        CompoundTag persistedData = forgeData.getCompound("PlayerPersisted");
         if (!(persistedData.contains(MODID))) {
             persistedData.put(MODID, new CompoundTag());
         }
@@ -65,8 +66,8 @@ public class OutOfCombatHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.player.isAlive() && event.phase == TickEvent.Phase.END && event.side.isServer()) {
+    public static void onPlayerTick(TickEvent.PlayerTickEvent.Post event) {
+        if (event.player.isAlive() && event.side.isServer()) {
 
             CompoundTag outOfCombatData = getOutOfCombatData(event.player);
 
