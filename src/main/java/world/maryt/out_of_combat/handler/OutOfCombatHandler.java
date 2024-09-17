@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -53,6 +54,20 @@ public class OutOfCombatHandler {
             if (DEBUG) LOGGER.debug("outOfCombatTime cleared.");
         }
     }
+
+
+    // Clear timers when player dies, but save the "Stop" countdown timer
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPlayerDeath(LivingDeathEvent event) {
+        if (event.getEntityLiving() instanceof EntityPlayer) {
+            EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+            NBTTagCompound outOfCombatData = getOutOfCombatData(player);
+            outOfCombatData.setLong("noAttackingTime", 0L);
+            outOfCombatData.setLong("noAttackedTime", 0L);
+            outOfCombatData.setLong("outOfCombatTime", 0L);
+        }
+    }
+
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
