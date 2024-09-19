@@ -14,7 +14,6 @@ public class OutOfCombat {
     public static final String MODID = "out_of_combat";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    @SuppressWarnings("removal")
     public OutOfCombat() {
         // Event handlers' registrations must be in the constructor of the main class
         MinecraftForge.EVENT_BUS.register(OutOfCombatHandler.class);
