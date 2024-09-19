@@ -35,8 +35,13 @@ So that the out-of-combat timer will wait for the abilities to deactivate, and c
 Full text of `config/out_of_combat-common.toml`:
 
 ```toml
+#General settings
+[DEBUG]
 #Enable this for debugging purpose
-DEBUG = true
+DEBUG = false
+
+#General settings
+["General Settings"]
 #Out-of-combat timer only counts after Not-being-attacked timer counts more than this value.
 #Range: 0 ~ 9223372036854775807
 noAttackedTimeThreshold = 9223372036854775807
