@@ -9,12 +9,9 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import world.maryt.out_of_combat.Config;
 
 import static world.maryt.out_of_combat.OutOfCombat.MODID;
-import static world.maryt.out_of_combat.OutOfCombat.DEBUG;
-import static world.maryt.out_of_combat.OutOfCombat.noAttackingTimeThreshold;
-import static world.maryt.out_of_combat.OutOfCombat.noAttackedTimeThreshold;
-import static world.maryt.out_of_combat.OutOfCombat.outOfCombatTimeThreshold;
 import static world.maryt.out_of_combat.OutOfCombat.LOGGER;
 
 @Mod.EventBusSubscriber()
@@ -39,9 +36,9 @@ public class OutOfCombatHandler {
             PlayerEntity player = (PlayerEntity) event.getSource().getEntity();
             CompoundNBT outOfCombatData = getOutOfCombatData(player);
             outOfCombatData.putLong("noAttackingTime", 0L);
-            if (DEBUG) LOGGER.debug("noAttackingTime cleared.");
+            if (Config.DEBUG.get()) LOGGER.debug("noAttackingTime cleared.");
             outOfCombatData.putLong("outOfCombatTime", 0L);
-            if (DEBUG) LOGGER.debug("outOfCombatTime cleared.");
+            if (Config.DEBUG.get()) LOGGER.debug("outOfCombatTime cleared.");
         }
     }
 
@@ -54,9 +51,9 @@ public class OutOfCombatHandler {
             PlayerEntity player = (PlayerEntity) event.getEntity();
             CompoundNBT outOfCombatData = getOutOfCombatData(player);
             outOfCombatData.putLong("noAttackedTime", 0L);
-            if (DEBUG) LOGGER.debug("noAttackedTime cleared.");
+            if (Config.DEBUG.get()) LOGGER.debug("noAttackedTime cleared.");
             outOfCombatData.putLong("outOfCombatTime", 0L);
-            if (DEBUG) LOGGER.debug("outOfCombatTime cleared.");
+            if (Config.DEBUG.get()) LOGGER.debug("outOfCombatTime cleared.");
         }
     }
 
@@ -89,21 +86,21 @@ public class OutOfCombatHandler {
             // If this timer has got a zero value, this line effectively do nothing.
             // If this timer has a nonzero value, it will function as a countdown timer.
             outOfCombatData.putLong("stopOutOfCombatTimer", Long.max(0L, outOfCombatData.getLong("stopOutOfCombatTimer") - 1L));
-            if (DEBUG) LOGGER.debug("stopOutOfCombatTimer: {}, It should be set to: {}",
+            if (Config.DEBUG.get()) LOGGER.debug("stopOutOfCombatTimer: {}, It should be set to: {}",
                     outOfCombatData.getLong("stopOutOfCombatTimer"),
                     Long.max(0L, outOfCombatData.getLong("stopOutOfCombatTimer") - 1L));
 
-            if (outOfCombatData.getLong("noAttackingTime") >= noAttackingTimeThreshold &&
-                    outOfCombatData.getLong("noAttackedTime") >= noAttackedTimeThreshold &&
+            if (outOfCombatData.getLong("noAttackingTime") >= Config.NO_ATTACKING_TIME_THRESHOLD.get() &&
+                    outOfCombatData.getLong("noAttackedTime") >= Config.NO_ATTACKED_TIME_THRESHOLD.get() &&
                     outOfCombatData.getLong("stopOutOfCombatTimer") <= 0L
             ) {
                 long newOutOfCombatTime = outOfCombatData.getLong("outOfCombatTime") + 1L;
                 outOfCombatData.putLong("outOfCombatTime", newOutOfCombatTime);
-                if (DEBUG && outOfCombatData.getLong("outOfCombatTime") >= outOfCombatTimeThreshold)
+                if (Config.DEBUG.get() && outOfCombatData.getLong("outOfCombatTime") >= Config.OUT_OF_COMBAT_THRESHOLD.get())
                     LOGGER.info("PlayerEntity is out of combat for {} ticks.",
-                            outOfCombatData.getLong("outOfCombatTime") - outOfCombatTimeThreshold);
+                            outOfCombatData.getLong("outOfCombatTime") - Config.OUT_OF_COMBAT_THRESHOLD.get());
             } else {
-                if (DEBUG) {
+                if (Config.DEBUG.get()) {
                     LOGGER.debug("Out-of-combat timer's ticking is stopped due to: noAttackingTime = {}, noAttackedTime = {}, stopOutOfCombatTimer = {}.",
                             outOfCombatData.getLong("noAttackingTime"),
                             outOfCombatData.getLong("noAttackedTime"),
@@ -113,11 +110,11 @@ public class OutOfCombatHandler {
             }
 
             // Debug info here
-            if (DEBUG) {
+            if (Config.DEBUG.get()) {
                 LOGGER.debug("noAttackingTime: {}/{}, noAttackedTime: {}/{}, outOfCombatTime: {}/{} (Current/Threshold).",
-                        outOfCombatData.getLong("noAttackingTime"), noAttackingTimeThreshold,
-                        outOfCombatData.getLong("noAttackedTime"), noAttackedTimeThreshold,
-                        outOfCombatData.getLong("outOfCombatTime"), outOfCombatTimeThreshold
+                        outOfCombatData.getLong("noAttackingTime"), Config.NO_ATTACKING_TIME_THRESHOLD.get(),
+                        outOfCombatData.getLong("noAttackedTime"), Config.NO_ATTACKED_TIME_THRESHOLD.get(),
+                        outOfCombatData.getLong("outOfCombatTime"), Config.OUT_OF_COMBAT_THRESHOLD.get()
                 );
             }
         }
